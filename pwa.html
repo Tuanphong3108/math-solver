@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Đang Tải Math Solver...</title>
+    
+    <!-- Import Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+
+    <style>
+        /* CSS Tối ưu Full Screen và Căn Giữa */
+        body, html {
+            font-family: 'Inter', sans-serif;
+            background-color: #1A497A; /* Màu nền khớp với Nav Bar */
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            color: white;
+            overflow: hidden;
+        }
+
+        .splash-icon {
+            font-size: 6rem; /* Kích thước lớn cho icon */
+            /* Cài đặt icon: FILL 1 (đặc), Wght 400 */
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48; 
+            opacity: 0; /* Khởi tạo ẩn */
+            animation: fadeIn 1s ease-out forwards; /* Hiệu ứng mờ dần và hiện ra */
+        }
+        
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .splash-icon {
+                font-size: 4rem;
+            }
+            .loading-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Biểu tượng Material Symbol "calculate" -->
+    <span class="material-symbols-outlined splash-icon">
+        calculate
+    </span>
+    <div class="loading-text">Đang tải trung tâm Toán học...</div>
+
+    <script>
+        // Thời gian chờ 2000ms (2 giây)
+        const delayInMilliseconds = 2000;
+        
+        // Đường dẫn đích (Cổng Cymath Portal)
+        const targetUrl = "https://tuanphong3108.github.io/math-solver/cymath_portal.html"; 
+        
+        // Bắt đầu đếm ngược và chuyển hướng
+        setTimeout(() => {
+            console.log("Đã hết 2 giây, chuyển hướng tới Cymath Portal.");
+            window.location.href = targetUrl;
+        }, delayInMilliseconds);
+    </script>
+</body>
+</html>
