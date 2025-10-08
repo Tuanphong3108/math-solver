@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Chuyển Đổi Đơn Vị - Ultimate Converter</title>
+    
+    <!-- Liên kết Manifest (Giả định, bạn cần file manifest.json để cài PWA) -->
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        /* Import Font Inter và Material Symbols */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+        
+        body, html {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Nền nhẹ nhàng */
+            margin: 0;
+            padding: 0;
+            /* Dùng vh để fix chiều cao trên mobile */
+            height: 100vh; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Sắp xếp từ trên xuống */
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        /* --- Thanh Điều Hướng (Header) --- */
+        #navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #1A497A; /* Màu nền chính */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 1rem;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-button .material-symbols-outlined {
+            font-size: 1.2rem;
+            margin-right: 0.4rem;
+            /* Đảm bảo icon có độ đậm phù hợp */
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        }
+
+        /* Nút Cymath (Link ngoài) */
+        .cymath-button {
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+
+        .cymath-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #0E7490;
+            color: #0E7490;
+        }
+
+        /* Nút Đang hoạt động (Chuyển đổi đơn vị) */
+        .active-button {
+            background-color: #0E7490; /* Màu Teal */
+            color: white;
+            border: 1px solid #0E7490;
+            pointer-events: none; 
+        }
+        
+        /* --- Giao diện chính --- */
+        .container {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            max-width: 480px;
+            width: 90%;
+            transition: all 0.3s ease;
+            margin-top: 80px; /* Bù trừ cho fixed header */
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #1A497A;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .input-group, .select-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: #0E7490; 
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.2);
+        }
+
+        .result-box {
+            background-color: #E0F7FA; 
+            color: #0E7490;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-all;
+        }
+        
+        .reset-button {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            background-color: #1A497A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .reset-button:hover {
+            background-color: #0E7490;
+            transform: translateY(-1px);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            #navbar {
+                height: 50px;
+            }
+            .nav-button {
+                padding: 0.5rem 0.5rem;
+                margin: 0 0.2rem;
+                font-size: 0.8rem;
+            }
+            .container {
+                margin-top: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Thanh Điều Hướng (Navigation Bar) -->
+<header id="navbar">
+    <!-- Nút Cymath - Dẫn đến dự án GitHub của Phong -->
+    <a href="https://tuanphong3108.github.io/math-solver/index.html" class="nav-button cymath-button" target="_blank" title="Mở Cymath Solver (Dự án riêng)">
+        <span class="material-symbols-outlined">calculate</span>
+        Cymath
+    </a>
+    <!-- Nút Chuyển đổi đơn vị - Đang active -->
+    <span class="nav-button active-button">
+        <span class="material-symbols-outlined">swap_horiz</span>
+        Chuyển đổi đơn vị
+    </span>
+</header>
+
+
+<div class="container">
+    <h1>Bộ Chuyển Đổi Đơn Vị (Tối Ưu)</h1>
+
+    <!-- Loại đơn vị -->
+    <div class="select-group">
+        <label for="unit-type">Chọn Loại Đơn Vị:</label>
+        <select id="unit-type" onchange="updateUnits()">
+            <option value="length">Độ Dài</option>
+            <option value="temperature">Nhiệt Độ</option>
+            <option value="weight">Khối Lượng</option>
+            <option value="speed">Tốc Độ</option>
+            <option value="volume">Dung Tích/Thể Tích</option>
+        </select>
+    </div>
+
+    <!-- Nhập giá trị -->
+    <div class="input-group">
+        <label for="input-value">Giá Trị Cần Chuyển Đổi:</label>
+        <input type="number" id="input-value" placeholder="Nhập giá trị" value="" oninput="convertUnit()">
+    </div>
+
+    <!-- Đơn vị nguồn -->
+    <div class="select-group">
+        <label for="from-unit">Từ Đơn Vị:</label>
+        <select id="from-unit" onchange="convertUnit()"></select>
+    </div>
+
+    <!-- Đơn vị đích -->
+    <div class="select-group">
+        <label for="to-unit">Sang Đơn Vị:</label>
+        <select id="to-unit" onchange="convertUnit()"></select>
+    </div>
+
+    <!-- Hộp kết quả -->
+    <div class="result-box" id="result">
+        Nhập giá trị và chọn đơn vị để bắt đầu.
+    </div>
+    
+    <button class="reset-button" onclick="resetForm()">Đặt Lại</button>
+
+</div>
+
+<script>
+    // Định nghĩa các hằng số chuyển đổi. Tất cả đều chuyển về đơn vị cơ sở (base unit).
+    // Base units: Length (Meter), Temperature (Celsius/Kelvin), Weight (Kilogram), Speed (m/s), Volume (m³)
+
+    const conversions = {
+        length: {
+            baseUnit: 'm',
+            units: {
+                m: 1,
+                km: 1000,
+                mi: 1609.34,
+                ft: 0.3048,
+                inch: 0.0254
+            },
+            labels: {
+                m: 'Mét (m)', km: 'Kilômét (km)', mi: 'Dặm (mi)', ft: 'Foot (ft)', inch: 'Inch (in)'
+            }
+        },
+        weight: {
+            baseUnit: 'kg',
+            units: {
+                kg: 1,
+                g: 0.001,
+                lb: 0.453592,
+                oz: 0.0283495
+            },
+            labels: {
+                kg: 'Kilôgam (kg)', g: 'Gram (g)', lb: 'Pound (lb)', oz: 'Ounce (oz)'
+            }
+        },
+        temperature: {
+            baseUnit: 'C', // Xử lý nhiệt độ đặc biệt, không dùng tỷ lệ nhân đơn giản
+            units: {
+                C: 'Celsius', F: 'Fahrenheit', K: 'Kelvin'
+            },
+            labels: {
+                C: 'Độ C (°C)', F: 'Độ F (°F)', K: 'Độ K (K)'
+            }
+        },
+        speed: {
+            baseUnit: 'm/s',
+            units: {
+                'm/s': 1,
+                'km/h': 1 / 3.6, // Tỷ lệ: 1 km/h = 1/3.6 m/s
+                'mph': 0.44704, // Tỷ lệ: 1 mph = 0.44704 m/s
+                'kn': 0.514444 // Tỷ lệ: 1 knot = 0.514444 m/s
+            },
+            labels: {
+                'm/s': 'Mét/giây (m/s)', 'km/h': 'Kilômét/giờ (km/h)', 'mph': 'Dặm/giờ (mph)', 'kn': 'Hải lý/giờ (kn)'
+            }
+        },
+        volume: {
+            baseUnit: 'm³',
+            units: {
+                'm³': 1,
+                'l': 0.001, // 1 Lít = 0.001 m³
+                'gal': 0.00378541, // 1 Gallon US = 0.00378541 m³
+                'ft³': 0.0283168 // 1 Foot khối = 0.0283168 m³
+            },
+            labels: {
+                'm³': 'Mét khối (m³)', 'l': 'Lít (l)', 'gal': 'Gallon (gal US)', 'ft³': 'Foot khối (ft³)'
+            }
+        }
+    };
+
+    /**
+     * Cập nhật danh sách đơn vị trong các thẻ <select> dựa trên loại đơn vị được chọn.
+     */
+    function updateUnits() {
+        const type = document.getElementById('unit-type').value;
+        const fromSelect = document.getElementById('from-unit');
+        const toSelect = document.getElementById('to-unit');
+        
+        // Xóa các option cũ
+        fromSelect.innerHTML = '';
+        toSelect.innerHTML = '';
+
+        const currentConversion = conversions[type];
+        
+        // Thêm các option mới
+        for (const unit in currentConversion.units) {
+            const label = currentConversion.labels[unit];
+            
+            const optionFrom = document.createElement('option');
+            optionFrom.value = unit;
+            optionFrom.textContent = label;
+            fromSelect.appendChild(optionFrom);
+
+            const optionTo = document.createElement('option');
+            optionTo.value = unit;
+            optionTo.textContent = label;
+            toSelect.appendChild(optionTo);
+        }
+        
+        // Đặt đơn vị mặc định ban đầu
+        fromSelect.value = Object.keys(currentConversion.units)[0];
+        toSelect.value = Object.keys(currentConversion.units)[1] || fromSelect.value;
+        
+        convertUnit(); // Thực hiện chuyển đổi ngay sau khi thay đổi loại đơn vị
+    }
+
+    /**
+     * Hàm chính thực hiện logic chuyển đổi đơn vị.
+     */
+    function convertUnit() {
+        const type = document.getElementById('unit-type').value;
+        const value = parseFloat(document.getElementById('input-value').value);
+        const fromUnit = document.getElementById('from-unit').value;
+        const toUnit = document.getElementById('to-unit').value;
+        const resultElement = document.getElementById('result');
+
+        if (isNaN(value) || value === '') {
+            resultElement.textContent = 'Vui lòng nhập một giá trị hợp lệ.';
+            return;
+        }
+
+        let result;
+        const currentConversion = conversions[type];
+
+        if (type === 'temperature') {
+            // Logic chuyển đổi nhiệt độ (đặc biệt)
+            result = convertTemperature(value, fromUnit, toUnit);
+        } else {
+            // Logic chuyển đổi Độ dài, Khối lượng, Tốc độ, Dung tích (Dùng đơn vị cơ sở)
+            const conversionFactorFrom = currentConversion.units[fromUnit];
+            const conversionFactorTo = currentConversion.units[toUnit];
+
+            // 1. Chuyển đổi từ đơn vị nguồn sang đơn vị cơ sở (base unit)
+            const valueInBaseUnit = value * conversionFactorFrom;
+
+            // 2. Chuyển đổi từ đơn vị cơ sở sang đơn vị đích
+            result = valueInBaseUnit / conversionFactorTo;
+        }
+
+        // Định dạng và hiển thị kết quả
+        if (result !== undefined) {
+            // Làm sạch số thập phân, giữ tối đa 6 chữ số sau dấu phẩy
+            const formattedResult = result.toFixed(6).replace(/\.?0+$/, ""); 
+            const unitLabel = currentConversion.labels[toUnit];
+            resultElement.innerHTML = `<strong>${formattedResult}</strong> ${unitLabel}`;
+        } else {
+             resultElement.textContent = 'Lỗi chuyển đổi không xác định.';
+        }
+    }
+    
+    /**
+     * Logic chuyển đổi nhiệt độ (không dùng tỷ lệ nhân đơn giản)
+     */
+    function convertTemperature(value, fromUnit, toUnit) {
+        let valueInC; // Giá trị cơ sở là Celsius
+
+        // Bước 1: Chuyển đổi về Celsius
+        if (fromUnit === 'C') {
+            valueInC = value;
+        } else if (fromUnit === 'F') {
+            valueInC = (value - 32) * 5 / 9;
+        } else if (fromUnit === 'K') {
+            valueInC = value - 273.15;
+        } else {
+            return undefined;
+        }
+
+        // Bước 2: Chuyển đổi từ Celsius sang đơn vị đích
+        if (toUnit === 'C') {
+            return valueInC;
+        } else if (toUnit === 'F') {
+            return (valueInC * 9 / 5) + 32;
+        } else if (toUnit === 'K') {
+            return valueInC + 273.15;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Đặt lại form về trạng thái ban đầu.
+     */
+    function resetForm() {
+        document.getElementById('unit-type').value = 'length';
+        document.getElementById('input-value').value = '';
+        document.getElementById('result').textContent = 'Nhập giá trị và chọn đơn vị để bắt đầu.';
+        updateUnits();
+    }
+
+    // Khởi tạo ứng dụng khi load trang
+    window.onload = function() {
+        console.log("Unit Converter đã sẵn sàng!");
+        updateUnits();
+    };
+
+</script>
+</body>
+</html>
