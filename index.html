@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <!-- Thiết lập Viewport cho Responsive Design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Cymath Solver - Cổng Riêng</title>
+    
+    <!-- Liên kết đến file manifest.json (Cần tạo file này riêng để cài PWA) -->
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        /* Sử dụng font Inter cho trải nghiệm hiện đại */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body, html {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Đảm bảo iframe chiếm trọn màn hình */
+            background-color: #f0f4f8; /* Màu nền nhẹ nhàng */
+        }
+        
+        #iframe-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        #cymath-frame {
+            border: 2px solid #1A497A; /* Border màu xanh đậm cho cái nhìn "chất" */
+            border-radius: 12px; /* Bo tròn góc */
+            width: 95%; 
+            height: 95%; 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Tạo bóng đổ nhẹ */
+        }
+
+        /* Responsive cho Mobile: Full màn hình, không border */
+        @media (max-width: 640px) {
+            #cymath-frame {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            #iframe-container {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="iframe-container">
+        <!-- 
+        *** KHUNG NHÚNG CYMATH ***
+        LƯU Ý: Rất có thể Cymath đã chặn nhúng. Nếu bạn thấy lỗi bảo mật, đó là lý do.
+        Cấu trúc này vẫn là tối ưu nhất cho việc cài PWA.
+        -->
+        <iframe 
+            id="cymath-frame" 
+            src="https://www.cymath.com/" 
+            title="Cymath Math Solver Nhúng">
+            
+            <!-- Nội dung thay thế nếu iframe bị chặn -->
+            <div class="fallback-message">
+                <h1>⚠️ Lỗi Nhúng</h1>
+                <p>Cymath đã chặn việc hiển thị nội dung bên ngoài.</p>
+                <p>Vui lòng <a href="https://www.cymath.com/" target="_blank" style="color:#1A497A; font-weight: bold;">Mở Cymath trực tiếp tại đây</a>.</p>
+            </div>
+        </iframe>
+    </div>
+</body>
+</html>
