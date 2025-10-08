@@ -1,8 +1,8 @@
 {
-    "name": "Math Solver Hub - Tuyển Tập Của Phong",
+    "name": "Math Solver",
     "short_name": "Math Solver",
     "description": "Trung tâm giải toán và chuyển đổi đơn vị (Cymath Portal) tối ưu cho PWA.",
-    "start_url": "/pwa.html",
+    "start_url": "pwa.html",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#1A497A",
